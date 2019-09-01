@@ -47,7 +47,7 @@ const uint8_t lookup[129] = {
 0,0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
 };
 
-void *jmalloc(size_t sz)
+__attribute__((noinline)) void *jmalloc(size_t sz)
 {
   struct linked_list_head *ls = NULL;
   struct jmalloc_block *blk;
@@ -122,7 +122,7 @@ void *jmalloc(size_t sz)
   return blk;
 }
 
-void jmfree(void *ptr, size_t sz)
+__attribute__((noinline)) void jmfree(void *ptr, size_t sz)
 {
   struct linked_list_head *ls = NULL;
   struct jmalloc_block *blk = ptr;
@@ -175,7 +175,16 @@ int main(int argc, char **argv)
   size_t i;
   for (i = 0; i < 100*1000*1000; i++)
   {
-    size_t sz = 1<<(4 + rand()%8);
+    size_t sz = 1<<(4 + rand()%4);
     jmfree(jmalloc(sz), sz);
+    jmfree(jmalloc(sz<<1), sz<<1);
+    jmfree(jmalloc(sz<<2), sz<<2);
+    jmfree(jmalloc(sz<<3), sz<<3);
+    jmfree(jmalloc(sz<<4), sz<<4);
+    jmfree(jmalloc(sz), sz);
+    jmfree(jmalloc(sz<<1), sz<<1);
+    jmfree(jmalloc(sz<<2), sz<<2);
+    jmfree(jmalloc(sz<<3), sz<<3);
+    jmfree(jmalloc(sz<<4), sz<<4);
   }
 }
