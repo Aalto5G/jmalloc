@@ -1,6 +1,7 @@
 #include "linkedlist.h"
 #include <sys/mman.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 
 
@@ -42,11 +43,16 @@ static inline size_t topages(size_t limit)
   return actlimit;
 }
 
+const uint8_t lookup[129] = {
+0,0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+};
+
 void *jmalloc(size_t sz)
 {
   struct linked_list_head *ls = NULL;
   struct jmalloc_block *blk;
   void *ret;
+  uint8_t lookupval;
   if (sz > 2048)
   {
     ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
@@ -55,46 +61,42 @@ void *jmalloc(size_t sz)
       return NULL;
     }
   }
-  if (sz <= 16 && 16 >= sizeof(struct jmalloc_block))
+  lookupval = lookup[(sz+15)/16];
+  if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
   {
-    ls = &blocks[0];
-    sz = 16;
+    lookupval = 1;
   }
-  else if (sz <= 32 && 32 >= sizeof(struct jmalloc_block))
+  if (lookupval == 1 && sizeof(struct jmalloc_block) > 32)
   {
-    ls = &blocks[1];
-    sz = 32;
+    lookupval = 2;
   }
-  else if (sz <= 64 && 64 >= sizeof(struct jmalloc_block))
+  if (lookupval == 2 && sizeof(struct jmalloc_block) > 64)
   {
-    ls = &blocks[2];
-    sz = 64;
+    lookupval = 3;
   }
-  else if (sz <= 128 && 128 >= sizeof(struct jmalloc_block))
+  if (lookupval == 3 && sizeof(struct jmalloc_block) > 128)
   {
-    ls = &blocks[3];
-    sz = 128;
+    lookupval = 4;
   }
-  else if (sz <= 256 && 256 >= sizeof(struct jmalloc_block))
+  if (lookupval == 4 && sizeof(struct jmalloc_block) > 256)
   {
-    ls = &blocks[4];
-    sz = 256;
+    lookupval = 5;
   }
-  else if (sz <= 512 && 512 >= sizeof(struct jmalloc_block))
+  if (lookupval == 5 && sizeof(struct jmalloc_block) > 512)
   {
-    ls = &blocks[5];
-    sz = 512;
+    lookupval = 6;
   }
-  else if (sz <= 1024 && 1024 >= sizeof(struct jmalloc_block))
+  if (lookupval == 6 && sizeof(struct jmalloc_block) > 1024)
   {
-    ls = &blocks[6];
-    sz = 1024;
+    lookupval = 7;
   }
-  else if (sz <= 2048 && 2048 >= sizeof(struct jmalloc_block))
+  if (sizeof(struct jmalloc_block) > 2048)
   {
-    ls = &blocks[7];
-    sz = 2048;
+    abort();
   }
+  ls = &blocks[lookupval];
+  sz = 1<<(4+lookupval);
+
   if (linked_list_is_empty(ls))
   {
     if (arenaremain < sz)
@@ -124,51 +126,47 @@ void jmfree(void *ptr, size_t sz)
 {
   struct linked_list_head *ls = NULL;
   struct jmalloc_block *blk = ptr;
+  uint8_t lookupval;
   if (sz > 2048)
   {
     munmap(ptr, topages(sz));
     return;
   }
-  if (sz <= 16 && 16 >= sizeof(struct jmalloc_block))
+  lookupval = lookup[(sz+15)/16];
+  if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
   {
-    ls = &blocks[0];
-    sz = 16;
+    lookupval = 1;
   }
-  else if (sz <= 32 && 32 >= sizeof(struct jmalloc_block))
+  if (lookupval == 1 && sizeof(struct jmalloc_block) > 32)
   {
-    ls = &blocks[1];
-    sz = 32;
+    lookupval = 2;
   }
-  else if (sz <= 64 && 64 >= sizeof(struct jmalloc_block))
+  if (lookupval == 2 && sizeof(struct jmalloc_block) > 64)
   {
-    ls = &blocks[2];
-    sz = 64;
+    lookupval = 3;
   }
-  else if (sz <= 128 && 128 >= sizeof(struct jmalloc_block))
+  if (lookupval == 3 && sizeof(struct jmalloc_block) > 128)
   {
-    ls = &blocks[3];
-    sz = 128;
+    lookupval = 4;
   }
-  else if (sz <= 256 && 256 >= sizeof(struct jmalloc_block))
+  if (lookupval == 4 && sizeof(struct jmalloc_block) > 256)
   {
-    ls = &blocks[4];
-    sz = 256;
+    lookupval = 5;
   }
-  else if (sz <= 512 && 512 >= sizeof(struct jmalloc_block))
+  if (lookupval == 5 && sizeof(struct jmalloc_block) > 512)
   {
-    ls = &blocks[5];
-    sz = 512;
+    lookupval = 6;
   }
-  else if (sz <= 1024 && 1024 >= sizeof(struct jmalloc_block))
+  if (lookupval == 6 && sizeof(struct jmalloc_block) > 1024)
   {
-    ls = &blocks[6];
-    sz = 1024;
+    lookupval = 7;
   }
-  else if (sz <= 2048 && 2048 >= sizeof(struct jmalloc_block))
+  if (sizeof(struct jmalloc_block) > 2048)
   {
-    ls = &blocks[7];
-    sz = 2048;
+    abort();
   }
+  ls = &blocks[lookupval];
+  sz = 1<<(4+lookupval);
   linked_list_add_head(&blk->u.llnode, ls);
 }
 
