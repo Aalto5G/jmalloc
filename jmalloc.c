@@ -170,12 +170,26 @@ __attribute__((noinline)) void jmfree(void *ptr, size_t sz)
   linked_list_add_head(&blk->u.llnode, ls);
 }
 
+static unsigned int g_seed;
+
+// Used to seed the generator.
+static inline void fast_srand(int seed) {
+    g_seed = seed;
+}
+
+// Compute a pseudorandom integer.
+// Output value in range [0, 32767]
+static inline int fast_rand(void) {
+    g_seed = (214013*g_seed+2531011);
+    return (g_seed>>16)&0x7FFF;
+}
+
 int main(int argc, char **argv)
 {
   size_t i;
   for (i = 0; i < 100*1000*1000; i++)
   {
-    size_t sz = 1<<(4 + rand()%4);
+    size_t sz = 1<<(4 + fast_rand()%4);
     jmfree(jmalloc(sz), sz);
     jmfree(jmalloc(sz<<1), sz<<1);
     jmfree(jmalloc(sz<<2), sz<<2);
