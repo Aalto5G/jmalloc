@@ -177,7 +177,7 @@ int main(int argc, char **argv)
   size_t i;
   for (i = 0; i < 100*1000*1000; i++)
   {
-    size_t sz = rand()%2049;
+    size_t sz = 1<<(4 + rand()%8);
     jmfree(jmalloc(sz), sz);
   }
 }
