@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
 
 #define CONTAINER_OF(ptr, type, member) \
   ((type*)(((char*)ptr) - (((char*)&(((type*)0)->member)) - ((char*)0))))
@@ -53,13 +55,14 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
   struct jmalloc_block *blk;
   void *ret;
   uint8_t lookupval;
-  if (sz > 2048)
+  if (unlikely(sz > 2048))
   {
     ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-    if (ret == MAP_FAILED)
+    if (unlikely(ret == MAP_FAILED))
     {
       return NULL;
     }
+    return ret;
   }
   lookupval = lookup[(sz+15)/16];
   if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
@@ -97,18 +100,18 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
   ls = &blocks[lookupval];
   sz = 1<<(4+lookupval);
 
-  if (linked_list_is_empty(ls))
+  if (unlikely(linked_list_is_empty(ls)))
   {
-    if (arenaremain < sz)
+    if (unlikely(arenaremain < sz))
     {
       arenaremain = 32*1024*1024;
       arena = mmap(NULL, arenaremain, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-      if (arena == MAP_FAILED || arena == NULL)
+      if (unlikely(arena == MAP_FAILED || arena == NULL))
       {
         abort();
       }
     }
-    if (arenaremain < sz)
+    if (unlikely(arenaremain < sz))
     {
       abort();
     }
@@ -127,7 +130,7 @@ __attribute__((noinline)) void jmfree(void *ptr, size_t sz)
   struct linked_list_head *ls = NULL;
   struct jmalloc_block *blk = ptr;
   uint8_t lookupval;
-  if (sz > 2048)
+  if (unlikely(sz > 2048))
   {
     munmap(ptr, topages(sz));
     return;
