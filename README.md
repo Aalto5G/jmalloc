@@ -10,6 +10,13 @@ Paging is needed to satisfy allocations larger than 2048 bytes, and most
 importantly, to allocate the arenas. So, don't use jmalloc on a system that
 lacks mmap!
 
+## Warning
+
+Note that the allocators as-is use `MAP_SHARED` instead of `MAP_PRIVATE`. This
+means that forking and modifying the data from the forked process might not do
+what you want. On the other hand, forking overheads are lower with
+`MAP_SHARED`.
+
 ## Usage
 
 How to compile:
