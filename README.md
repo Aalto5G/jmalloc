@@ -33,6 +33,7 @@ allocators:
 ```
 time ./lmalloc
 LD_PRELOAD=../sfmalloc/libsfmalloc.so time ./lmalloc
+LD_PRELOAD=../Hoard/src/libhoard.so time ./lmalloc
 LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.1 time ./lmalloc
 LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so.4 time ./lmalloc
 ```
