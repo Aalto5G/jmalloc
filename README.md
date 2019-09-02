@@ -31,7 +31,7 @@ How to run:
 time ./jmalloc2
 ```
 
-The variant `jmalloc2` is the current varant. The older `jmalloc` uses doubly
+The variant `jmalloc2` is the current variant. The older `jmalloc` uses doubly
 linked lists instead of singly linked lists.
 
 You can compare jmalloc performance to Linux allocator or various other
@@ -45,5 +45,5 @@ LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.1 time ./lmalloc
 LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so.4 time ./lmalloc
 ```
 
-Not the sfmalloc is buggy: it requires changing `-lpthread` to `-pthread` in
+Note the sfmalloc is buggy: it requires changing `-lpthread` to `-pthread` in
 the Makefile to actually work.
