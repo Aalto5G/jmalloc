@@ -4,4 +4,12 @@
 /allocstd
 /allocstd.c
 /allocstd.o
+/allocrealset
+/allocrealset.c
+/allocrealset.o
+/allocstdset
+/allocstdset.c
+/allocstdset.o
 /jmalloccore.o
+/ops.c
+/ops.o
