@@ -1,5 +1,7 @@
 # jmalloc
 
+![jmalloc](jmalloclogo.png)
+
 jmalloc is a high-performance memory allocator on a different location of the
 high performance - low fragmentation scale than most allocators out there. It
 purposefully has an interface different from malloc. The difference is that

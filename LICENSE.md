@@ -1,3 +1,10 @@
+This license applies only to the software and associated documentation files
+(without the logo as used in documentation). The logo is copyrighted (c)
+2019 by Juha-Matti Tilli, all rights reserved, and can be used only in
+combination with substantially unmodified versions of jmalloc, with the
+substantially unmodified versions distributed under the MIT license, with at
+most minor modifications to permit compilation on a certain platform.
+
 Copyright (c) 2017-2019 Aalto University
 
 Copyright (c) 2018 Juha-Matti Tilli
