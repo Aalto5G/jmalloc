@@ -17,6 +17,22 @@ static inline int fast_rand_mod4(void) {
     return (g_seed>>30);
 }
 
+/*
+ * I was reminded that large system call count could explain why malloc() is
+ * so slow. Run this program with strace ./lmalloc and the brk() calls show up
+ * like this:
+ *
+ * $ strace ./lmalloc
+ * [snip]
+ * brk(NULL)                               = 0x557db3000000
+ * brk(0x557db3021000)                     = 0x557db3021000
+ * exit_group(0)                           = ?
+ * +++ exited with 0 +++
+ *
+ * So, the reason for malloc() slowness is not large system call count.
+ *
+ */
+
 int main(int argc, char **argv)
 {
   size_t i;
