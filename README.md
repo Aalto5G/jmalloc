@@ -49,3 +49,31 @@ LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so.4 time ./lmalloc
 
 Note the sfmalloc is buggy: it requires changing `-lpthread` to `-pthread` in
 the Makefile to actually work.
+
+## Link size
+
+```
+$ cd realapp
+$ objdump -t allocreal|egrep '(text.*jm|lookup)'
+0000000000000ac0 g     O .rodata  0000000000000100              lookup2
+0000000000000810 g     F .text    0000000000000147              jmalloc
+0000000000000bc0 g     O .rodata  0000000000000081              lookup
+0000000000000960 g     F .text    00000000000000a7              jmfree
+```
+
+So, this version of jmalloc uses 879 bytes of memory, quite small for embedded
+systems. Note optimizations could compress both lookup tables to one 256-byte
+lookup table so it might be possible to fit jmalloc to even as small space as
+768 bytes.
+
+The simpler version of jmalloc not in the realapp directory is even smaller:
+```
+$ objdump -t jmalloc|egrep '(text.*jm|lookup)'
+00000000000009e0 g     F .text   000000000000013c              jmalloc
+0000000000000c60 g     O .rodata 0000000000000081              lookup
+0000000000000b20 g     F .text   0000000000000087              jmfree
+```
+
+So, this simpler version uses only 580 bytes of memory. Note the simple version
+will be slower for large allocations, but has the benefit of being simpler and
+smaller.
