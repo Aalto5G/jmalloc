@@ -1,0 +1,53 @@
+@subfile
+@strict
+
+@phonyrule: 'all': 'allocreal' 'allocstd' 'allocrealset' 'allocstdset'
+
+$CC ?= "cc"
+$CFLAGS ?= ["-O3"]
+$LDFLAGS ?= []
+
+'ops.c': 'allocanalyze.py' 'allocs.txt'
+@	["sh", "-c", "python allocanalyze.py ops > ops.c"]
+
+'allocreal.c': 'allocanalyze.py' 'allocs.txt'
+@	["sh", "-c", "python allocanalyze.py jm > allocreal.c"]
+
+'allocrealset.c': 'allocanalyze.py' 'allocs.txt'
+@	["sh", "-c", "python allocanalyze.py jmset > allocrealset.c"]
+
+'allocstd.c': 'allocanalyze.py' 'allocs.txt'
+@	["sh", "-c", "python allocanalyze.py std > allocstd.c"]
+
+'allocstdset.c': 'allocanalyze.py' 'allocs.txt'
+@	["sh", "-c", "python allocanalyze.py stdset > allocstdset.c"]
+
+'allocreal.o': 'allocreal.c'
+@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+
+'allocstd.o': 'allocstd.c'
+@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+
+'allocrealset.o': 'allocrealset.c'
+@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+
+'allocstdset.o': 'allocstdset.c'
+@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+
+'ops.o': 'ops.c'
+@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+
+'jmalloccore.o': 'jmalloccore.c'
+@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+
+'allocreal': 'allocreal.o' 'jmalloccore.o' 'ops.o'
+@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
+
+'allocstd': 'allocstd.o' 'jmalloccore.o' 'ops.o'
+@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
+
+'allocrealset': 'allocrealset.o' 'jmalloccore.o' 'ops.o'
+@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
+
+'allocstdset': 'allocstdset.o' 'jmalloccore.o' 'ops.o'
+@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
