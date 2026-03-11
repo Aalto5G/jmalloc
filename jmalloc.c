@@ -2,13 +2,14 @@
 #include <sys/mman.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <unistd.h>
 
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
 #define CONTAINER_OF(ptr, type, member) \
-  ((type*)(((char*)ptr) - (((char*)&(((type*)0)->member)) - ((char*)0))))
+  ((type*)(((char*)ptr) - offsetof(type, member)))
 
 struct jmalloc_block {
   union {
