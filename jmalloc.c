@@ -1,12 +1,11 @@
 #include "linkedlist.h"
+#include "clz.h"
+#include "likely.h"
 #include <sys/mman.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <unistd.h>
-
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect(!!(x), 0)
 
 #define CONTAINER_OF(ptr, type, member) \
   ((type*)(((char*)ptr) - offsetof(type, member)))
@@ -45,16 +44,18 @@ static inline size_t topages(size_t limit)
   return actlimit;
 }
 
+#ifndef HAS_CLZ
 const uint8_t lookup[129] = {
 0,0,1,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
 };
+#endif
 
 __attribute__((noinline)) void *jmalloc(size_t sz)
 {
   struct linked_list_head *ls = NULL;
   struct jmalloc_block *blk;
   void *ret;
-  uint8_t lookupval;
+  int8_t lookupval;
   if (unlikely(sz > 2048))
   {
     ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
@@ -64,7 +65,15 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
     }
     return ret;
   }
+#ifdef HAS_CLZ
+  lookupval = 28-__builtin_clz(sz ? (sz-1) : 0);
+  if (lookupval < 0)
+  {
+    lookupval = 0;
+  }
+#else
   lookupval = lookup[(sz+15)/16];
+#endif
   if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
   {
     lookupval = 1;
@@ -129,13 +138,21 @@ __attribute__((noinline)) void jmfree(void *ptr, size_t sz)
 {
   struct linked_list_head *ls = NULL;
   struct jmalloc_block *blk = ptr;
-  uint8_t lookupval;
+  int8_t lookupval;
   if (unlikely(sz > 2048))
   {
     munmap(ptr, topages(sz));
     return;
   }
+#ifdef HAS_CLZ
+  lookupval = 28-__builtin_clz(sz ? (sz-1) : 0);
+  if (lookupval < 0)
+  {
+    lookupval = 0;
+  }
+#else
   lookupval = lookup[(sz+15)/16];
+#endif
   if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
   {
     lookupval = 1;
