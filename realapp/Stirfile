@@ -23,31 +23,31 @@ $LDFLAGS ?= []
 @	["sh", "-c", "python3 allocanalyze.py stdset > allocstdset.c"]
 
 'allocreal.o': 'allocreal.c'
-@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
 
 'allocstd.o': 'allocstd.c'
-@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
 
 'allocrealset.o': 'allocrealset.c'
-@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
 
 'allocstdset.o': 'allocstdset.c'
-@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
 
 'ops.o': 'ops.c'
-@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
 
 'jmalloccore.o': 'jmalloccore.c'
-@	["cc", @$CFLAGS, "-c", "-o", $@, $<]
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
 
 'allocreal': 'allocreal.o' 'jmalloccore.o' 'ops.o'
-@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
+@	[$CC, @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
 
 'allocstd': 'allocstd.o' 'jmalloccore.o' 'ops.o'
-@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
+@	[$CC, @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
 
 'allocrealset': 'allocrealset.o' 'jmalloccore.o' 'ops.o'
-@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
+@	[$CC, @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
 
 'allocstdset': 'allocstdset.o' 'jmalloccore.o' 'ops.o'
-@	["cc", @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
+@	[$CC, @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
