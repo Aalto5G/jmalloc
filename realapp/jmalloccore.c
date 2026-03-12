@@ -16,9 +16,8 @@ size_t arenaremain;
 char *arena;
 
 // 16, 32, 64, 128, 256, 512, 1024, 2048
-struct jmalloc_block *blocks[8];
 // 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576
-struct jmalloc_block *blocks2[9];
+struct jmalloc_block *blocks[8+9];
 
 static inline size_t topages(size_t limit)
 {
@@ -48,6 +47,56 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
   struct jmalloc_block *blk;
   void *ret;
   int8_t lookupval;
+#ifdef HAS_CLZ
+  if (unlikely(sz > 1048576))
+  {
+    ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if (unlikely(ret == MAP_FAILED))
+    {
+      return NULL;
+    }
+    return ret;
+  }
+  lookupval = 28-__builtin_clz(sz ? (sz-1) : 0);
+  if (lookupval < 0)
+  {
+    lookupval = 0;
+  }
+  if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
+  {
+    lookupval = 1;
+  }
+  if (lookupval == 1 && sizeof(struct jmalloc_block) > 32)
+  {
+    lookupval = 2;
+  }
+  if (lookupval == 2 && sizeof(struct jmalloc_block) > 64)
+  {
+    lookupval = 3;
+  }
+  if (lookupval == 3 && sizeof(struct jmalloc_block) > 128)
+  {
+    lookupval = 4;
+  }
+  if (lookupval == 4 && sizeof(struct jmalloc_block) > 256)
+  {
+    lookupval = 5;
+  }
+  if (lookupval == 5 && sizeof(struct jmalloc_block) > 512)
+  {
+    lookupval = 6;
+  }
+  if (lookupval == 6 && sizeof(struct jmalloc_block) > 1024)
+  {
+    lookupval = 7;
+  }
+  if (sizeof(struct jmalloc_block) > 2048)
+  {
+    abort();
+  }
+  ls = &blocks[lookupval];
+  sz = 1<<(4+lookupval);
+#else
   if (unlikely(sz > 2048))
   {
     if (unlikely(sz > 1048576))
@@ -59,29 +108,13 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
       }
       return ret;
     }
-#ifdef HAS_CLZ
-    lookupval = 20-__builtin_clz(sz ? (sz-1) : 0);
-    if (lookupval < 0)
-    {
-      lookupval = 0;
-    }
-#else
-    lookupval = lookup2[(sz-1)/4096];
-#endif
-    ls = &blocks2[lookupval];
-    sz = 1<<(12+lookupval);
+    lookupval = lookup2[(sz-1)/4096]+8;
+    ls = &blocks[lookupval];
+    sz = 1<<(4+lookupval);
   }
   else
   {
-#ifdef HAS_CLZ
-    lookupval = 28-__builtin_clz(sz ? (sz-1) : 0);
-    if (lookupval < 0)
-    {
-      lookupval = 0;
-    }
-#else
     lookupval = lookup[(sz+15)/16];
-#endif
     if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
     {
       lookupval = 1;
@@ -117,6 +150,7 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
     ls = &blocks[lookupval];
     sz = 1<<(4+lookupval);
   }
+#endif
 
   if (unlikely(!*ls))
   {
@@ -148,6 +182,52 @@ __attribute__((noinline)) void jmfree(void *ptr, size_t sz)
   struct jmalloc_block **ls = NULL;
   struct jmalloc_block *blk = ptr;
   int8_t lookupval;
+#ifdef HAS_CLZ
+  if (unlikely(sz > 1048576))
+  {
+    munmap(ptr, topages(sz));
+    return;
+  }
+  lookupval = 28-__builtin_clz(sz ? (sz-1) : 0);
+  if (lookupval < 0)
+  {
+    lookupval = 0;
+  }
+  if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
+  {
+    lookupval = 1;
+  }
+  if (lookupval == 1 && sizeof(struct jmalloc_block) > 32)
+  {
+    lookupval = 2;
+  }
+  if (lookupval == 2 && sizeof(struct jmalloc_block) > 64)
+  {
+    lookupval = 3;
+  }
+  if (lookupval == 3 && sizeof(struct jmalloc_block) > 128)
+  {
+    lookupval = 4;
+  }
+  if (lookupval == 4 && sizeof(struct jmalloc_block) > 256)
+  {
+    lookupval = 5;
+  }
+  if (lookupval == 5 && sizeof(struct jmalloc_block) > 512)
+  {
+    lookupval = 6;
+  }
+  if (lookupval == 6 && sizeof(struct jmalloc_block) > 1024)
+  {
+    lookupval = 7;
+  }
+  if (sizeof(struct jmalloc_block) > 2048)
+  {
+    abort();
+  }
+  ls = &blocks[lookupval];
+  sz = 1<<(4+lookupval);
+#else
   if (unlikely(sz > 2048))
   {
     if (unlikely(sz > 1048576))
@@ -155,29 +235,13 @@ __attribute__((noinline)) void jmfree(void *ptr, size_t sz)
       munmap(ptr, topages(sz));
       return;
     }
-#ifdef HAS_CLZ
-    lookupval = 20-__builtin_clz(sz ? (sz-1) : 0);
-    if (lookupval < 0)
-    {
-      lookupval = 0;
-    }
-#else
-    lookupval = lookup2[(sz-1)/4096];
-#endif
-    ls = &blocks2[lookupval];
-    sz = 1<<(12+lookupval);
+    lookupval = lookup2[(sz-1)/4096]+8;
+    ls = &blocks[lookupval];
+    sz = 1<<(4+lookupval);
   }
   else
   {
-#ifdef HAS_CLZ
-    lookupval = 28-__builtin_clz(sz ? (sz-1) : 0);
-    if (lookupval < 0)
-    {
-      lookupval = 0;
-    }
-#else
     lookupval = lookup[(sz+15)/16];
-#endif
     if (lookupval == 0 && sizeof(struct jmalloc_block) > 16)
     {
       lookupval = 1;
@@ -213,6 +277,7 @@ __attribute__((noinline)) void jmfree(void *ptr, size_t sz)
     ls = &blocks[lookupval];
     sz = 1<<(4+lookupval);
   }
+#endif
   blk->u.next = *ls;
   *ls = blk;
 }
