@@ -3,19 +3,19 @@
 all: allocreal allocstd allocrealset allocstdset
 
 ops.c: allocanalyze.py allocs.txt
-	python2 allocanalyze.py ops > ops.c
+	python3 allocanalyze.py ops > ops.c
 
 allocreal.c: allocanalyze.py allocs.txt
-	python2 allocanalyze.py jm > allocreal.c
+	python3 allocanalyze.py jm > allocreal.c
 
 allocrealset.c: allocanalyze.py allocs.txt
-	python2 allocanalyze.py jmset > allocrealset.c
+	python3 allocanalyze.py jmset > allocrealset.c
 
 allocstd.c: allocanalyze.py allocs.txt
-	python2 allocanalyze.py std > allocstd.c
+	python3 allocanalyze.py std > allocstd.c
 
 allocstdset.c: allocanalyze.py allocs.txt
-	python2 allocanalyze.py stdset > allocstdset.c
+	python3 allocanalyze.py stdset > allocstdset.c
 
 allocreal.o: allocreal.c
 	cc -O3 -c -o $@ $<
