@@ -8,19 +8,19 @@ $CFLAGS ?= ["-O3"]
 $LDFLAGS ?= []
 
 'ops.c': 'allocanalyze.py' 'allocs.txt'
-@	["sh", "-c", "python allocanalyze.py ops > ops.c"]
+@	["sh", "-c", "python3 allocanalyze.py ops > ops.c"]
 
 'allocreal.c': 'allocanalyze.py' 'allocs.txt'
-@	["sh", "-c", "python allocanalyze.py jm > allocreal.c"]
+@	["sh", "-c", "python3 allocanalyze.py jm > allocreal.c"]
 
 'allocrealset.c': 'allocanalyze.py' 'allocs.txt'
-@	["sh", "-c", "python allocanalyze.py jmset > allocrealset.c"]
+@	["sh", "-c", "python3 allocanalyze.py jmset > allocrealset.c"]
 
 'allocstd.c': 'allocanalyze.py' 'allocs.txt'
-@	["sh", "-c", "python allocanalyze.py std > allocstd.c"]
+@	["sh", "-c", "python3 allocanalyze.py std > allocstd.c"]
 
 'allocstdset.c': 'allocanalyze.py' 'allocs.txt'
-@	["sh", "-c", "python allocanalyze.py stdset > allocstdset.c"]
+@	["sh", "-c", "python3 allocanalyze.py stdset > allocstdset.c"]
 
 'allocreal.o': 'allocreal.c'
 @	["cc", @$CFLAGS, "-c", "-o", $@, $<]
