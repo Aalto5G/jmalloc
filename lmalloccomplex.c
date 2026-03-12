@@ -22,7 +22,7 @@ struct block {
   size_t sz;
 };
 
-struct block blks[1024] = {};
+struct block blks[1024];
 
 int main(int argc, char **argv)
 {

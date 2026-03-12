@@ -8,7 +8,6 @@
 
 struct jmalloc_block {
   union {
-    char block[0];
     struct jmalloc_block *next;
   } u;
 };
@@ -17,9 +16,9 @@ size_t arenaremain;
 char *arena;
 
 // 16, 32, 64, 128, 256, 512, 1024, 2048
-struct jmalloc_block *blocks[8] = {};
+struct jmalloc_block *blocks[8];
 // 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576
-struct jmalloc_block *blocks2[9] = {};
+struct jmalloc_block *blocks2[9];
 
 static inline size_t topages(size_t limit)
 {

@@ -13,7 +13,6 @@
 
 struct jmalloc_block {
   union {
-    char block[0];
     struct linked_list_node llnode;
   } u;
 };
