@@ -1,0 +1,24 @@
+@subfile
+@strict
+
+@phonyrule: 'all': 'jmalloclib.o' 'libjmalloc.a' 'libjmalloc.so' 'libjmalloc.so.1'
+
+$CC ?= "cc"
+$CFLAGS ?= ["-O3"]
+$LDFLAGS ?= []
+$LDFLAGS_DYN = []
+$CFLAGS += ["-fPIC"]
+
+'jmalloclib.o': 'jmalloclib.c'
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
+
+'libjmalloc.a': 'jmalloclib.o'
+@	["rm", "-f", $@]
+@	["ar", "rvs", $@, @$^]
+
+'libjmalloc.so': 'libjmalloc.a'
+@	[$(CC), "-shared", "-fPIC", "-o", $@, "-Wl,--whole-archive", @@suffilter($^, ".a"), "-Wl,--no-whole-archive", @$(LDFLAGS_DYN), "-lc"]
+
+'libjmalloc.so.1': 'libjmalloc.so'
+@	["rm", "-f", $@]
+@	["ln", "-s", $<, $@]
