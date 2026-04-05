@@ -5,6 +5,9 @@
   #if __has_builtin (__builtin_expect)
     #define jmalloc_likely(x)       __builtin_expect(!!(x),1)
     #define jmalloc_unlikely(x)     __builtin_expect(!!(x),0)
+  #else
+    #define likely(x)       (!!(x))
+    #define unlikely(x)     (!!(x))
   #endif
 #else
   #ifdef __clang__ // LLVM 3.0 is the first to use this, no-op on LLVM 1.0
