@@ -1,5 +1,5 @@
-#ifndef _JMALLOCCORE_H_
-#define _JMALLOCCORE_H_
+#ifndef _JMALLOCLIB_H_
+#define _JMALLOCLIB_H_
 
 #include <stddef.h>
 
