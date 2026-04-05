@@ -21,10 +21,31 @@ what you want. On the other hand, forking overheads are lower with
 
 ## Usage
 
-How to compile:
+jmalloc is built using Stirmake. How to install it:
 
 ```
+git clone https://github.com/Aalto5G/stirmake
+cd stirmake
+git submodule init
+git submodule update
+cd stirc
 make
+./install.sh
+```
+
+This installs stirmake to `~/.local`. If you want to install to `/usr/local`,
+run `./install.sh` by typing `sudo ./install.sh /usr/local` (and you may want
+to run `sudo mandb` also).
+
+If the installation told `~/.local` is missing, create it with `mkdir` and try
+again. If the installation needed to create `~/.local/bin`, you may need to
+re-login for the programs to appear in your `PATH`.
+
+Then build jmalloc by:
+
+```
+cd jmalloc
+smka
 ```
 
 How to run:
@@ -49,6 +70,12 @@ LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so.4 time ./lmalloc
 
 Note the sfmalloc is buggy: it requires changing `-lpthread` to `-pthread` in
 the Makefile to actually work.
+
+How to install library version of jmalloc:
+
+```
+sudo ./install.sh /usr/local
+```
 
 ## Link size
 
