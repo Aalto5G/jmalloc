@@ -3,8 +3,29 @@
 
 @fileinclude @ignore "opts.smk"
 
-$WITH_PYTHON ?= @true
-$PYTHON3 ?= "python3"
+$WITH_PYTHON ?= @nil
+@if(@type($(WITH_PYTHON)) == @type(@nil))
+  $WITH_PYTHON `= ["sh", "-c", "echo $WITH_PYTHON"]
+  $WITH_PYTHON = @chomp($WITH_PYTHON)
+  @if(@strcmp($WITH_PYTHON, "") == 0)
+    $WITH_PYTHON = @true
+  @elseif(@strcmp($WITH_PYTHON, "1") == 0)
+    $WITH_PYTHON = @true
+  @elseif(@strcmp($WITH_PYTHON, "0") == 0)
+    $WITH_PYTHON = @false
+  @else
+    @call @error("Invalid WITH_PYTHON\n")
+  @endif
+@endif
+$PYTHON3 ?= @nil
+@if(@type($(PYTHON3)) == @type(@nil))
+  $PYTHON3 `= ["sh", "-c", "echo $PYTHON3"]
+  $PYTHON3 = @chomp($PYTHON3)
+  @if(@strcmp($PYTHON3, "") == 0)
+    $PYTHON3 = "python3"
+  @endif
+@endif
+
 $CC ?= "cc"
 $CFLAGS ?= ["-O3"]
 $LDFLAGS ?= []
