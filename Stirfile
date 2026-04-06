@@ -1,6 +1,10 @@
 @toplevel
 @strict
 
+@fileinclude @ignore "opts.smk"
+
+$WITH_PYTHON ?= @true
+$PYTHON3 ?= "python3"
 $CC ?= "cc"
 $CFLAGS ?= ["-O3"]
 $LDFLAGS ?= []
