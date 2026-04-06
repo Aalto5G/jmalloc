@@ -1,4 +1,5 @@
 #include "clz.h"
+#include "anon.h"
 #include "likely.h"
 #include <sys/mman.h>
 #include <stdlib.h>
@@ -45,7 +46,7 @@ __attribute__((noinline)) void *jmalloc1(size_t sz)
   int8_t lookupval;
   if (unlikely(sz > 2048))
   {
-    ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_SHARED|MY_MAP_ANONYMOUS, -1, 0);
     if (unlikely(ret == MAP_FAILED))
     {
       return NULL;
@@ -101,7 +102,7 @@ __attribute__((noinline)) void *jmalloc1(size_t sz)
     if (unlikely(arenaremain < sz))
     {
       arenaremain = 32*1024*1024;
-      arena = mmap(NULL, arenaremain, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+      arena = mmap(NULL, arenaremain, PROT_READ|PROT_WRITE, MAP_SHARED|MY_MAP_ANONYMOUS, -1, 0);
       if (unlikely(arena == MAP_FAILED || arena == NULL))
       {
         abort();
@@ -129,7 +130,7 @@ __attribute__((noinline)) void *jmalloc2(size_t sz, size_t *actual_sz)
   int8_t lookupval;
   if (unlikely(sz > 2048))
   {
-    ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+    ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_SHARED|MY_MAP_ANONYMOUS, -1, 0);
     if (unlikely(ret == MAP_FAILED))
     {
       return NULL;
@@ -185,7 +186,7 @@ __attribute__((noinline)) void *jmalloc2(size_t sz, size_t *actual_sz)
     if (unlikely(arenaremain < sz))
     {
       arenaremain = 32*1024*1024;
-      arena = mmap(NULL, arenaremain, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+      arena = mmap(NULL, arenaremain, PROT_READ|PROT_WRITE, MAP_SHARED|MY_MAP_ANONYMOUS, -1, 0);
       if (unlikely(arena == MAP_FAILED || arena == NULL))
       {
         abort();
