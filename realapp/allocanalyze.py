@@ -43,6 +43,11 @@ with open("allocs.txt", "r") as f:
     print("  for (i = 0; i < %d; i++) {" % (len(content),))
     print("    if (ops[i].is_free)")
     print("    {")
+    if len(sys.argv) > 1 and sys.argv[1] in ["jmset", "stdset"]:
+      print("      if (memchr(ar[ops[i].loc], 1, ops[i].sz) != NULL)")
+      print("      {");
+      print("        abort();");
+      print("      }");
     if len(sys.argv) > 1 and sys.argv[1] in ["std", "stdset"]:
       print("      free(ar[ops[i].loc]);")
     else:
