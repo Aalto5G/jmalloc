@@ -12,6 +12,15 @@ Paging is needed to satisfy allocations larger than 2048 bytes, and most
 importantly, to allocate the arenas. So, don't use jmalloc on a system that
 lacks mmap!
 
+## Newsflash: C++ jmalloc
+
+A C++ version of jmalloc, cppjmalloc, is available at
+https://github.com/jmtilli/cppjmalloc and may be even more useful than the C
+version here. The C++ version allows using multiple heaps easily in a single
+application, and has the benefit that the interface of standard C++ allocators
+specifies the block size when freeing, so no changes to C++ standard containers
+are needed for example in order to use the allocator.
+
 ## Warning
 
 Note that the allocators as-is use `MAP_SHARED` instead of `MAP_PRIVATE`. This
