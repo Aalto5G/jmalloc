@@ -12,9 +12,9 @@ print("#include <string.h>")
 print("#include <unistd.h>")
 
 print("struct op {")
-print("  int is_free;")
-print("  int loc;")
-print("  int sz;")
+print("  unsigned is_free:1;")
+print("  unsigned loc:31;")
+print("  unsigned sz;")
 print("};")
 
 with open("allocs.txt", "r") as f:
