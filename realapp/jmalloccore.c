@@ -13,6 +13,7 @@ struct jmalloc_block {
   } u;
 };
 
+size_t totalloc;
 size_t arenaremain;
 char *arena;
 
@@ -103,6 +104,7 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
     if (unlikely(sz > 1048576))
     {
       ret = mmap(NULL, topages(sz), PROT_READ|PROT_WRITE, MAP_PRIVATE|MY_MAP_ANONYMOUS, -1, 0);
+      totalloc += topages(sz);
       if (unlikely(ret == MAP_FAILED))
       {
         return NULL;
@@ -171,6 +173,7 @@ __attribute__((noinline)) void *jmalloc(size_t sz)
     ret = arena;
     arenaremain -= sz;
     arena += sz;
+    totalloc += sz;
     return ret;
   }
   blk = *ls;
@@ -186,6 +189,7 @@ __attribute__((noinline)) void jmfree(void *ptr, size_t sz)
 #ifdef HAS_CLZ
   if (unlikely(sz > 1048576))
   {
+    totalloc -= topages(sz);
     munmap(ptr, topages(sz));
     return;
   }

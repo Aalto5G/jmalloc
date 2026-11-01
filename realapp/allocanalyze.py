@@ -7,7 +7,9 @@ ptrcnt = 0
 
 print("#include \"jmalloccore.h\"")
 print("#include <stdlib.h>")
+print("#include <stdio.h>")
 print("#include <string.h>")
+print("#include <unistd.h>")
 
 print("struct op {")
 print("  int is_free;")
@@ -22,6 +24,8 @@ with open("allocs.txt", "r") as f:
     if ptr not in ptrs:
       ptrs[ptr] = ptrcnt
       ptrcnt += 1
+  if len(sys.argv) > 1 and sys.argv[1] in ["jm", "jmset"]:
+    print("extern size_t totalloc;")
   if len(sys.argv) > 1 and sys.argv[1] not in ["ops"]:
     print("void *ar[%d];" % (ptrcnt,))
     print("size_t sz[%d];" % (ptrcnt,))
@@ -39,6 +43,9 @@ with open("allocs.txt", "r") as f:
   if len(sys.argv) > 1 and sys.argv[1] not in ["ops"]:
     print("int main(int argc, char **argv) {")
     print("  size_t i, j;")
+    if len(sys.argv) > 1 and sys.argv[1] in ["std", "stdset"]:
+      print("  char *ptr1, *ptr2;")
+      print("  ptr1 = sbrk(0);")
     print("  for (j = 0; j < 100; j++) {")
     print("  for (i = 0; i < %d; i++) {" % (len(content),))
     print("    if (ops[i].is_free)")
@@ -73,4 +80,10 @@ with open("allocs.txt", "r") as f:
       print("    if (ar[i]) {jmfree(ar[i], sz[i]); ar[i] = NULL;}")
     print("  }")
     print("  }")
+    if len(sys.argv) > 1 and sys.argv[1] in ["jm", "jmset"]:
+      print("  printf(\"%zu\\n\", totalloc);")
+    else:
+      print("  ptr2 = sbrk(0);")
+      print("  printf(\"%zu\\n\", (size_t)(ptr2-ptr1));")
+    print("  return 0;")
     print("}")
