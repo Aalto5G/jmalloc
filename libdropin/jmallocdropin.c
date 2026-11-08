@@ -250,7 +250,7 @@ static inline void *realloc_impl(void *ptr, size_t size2)
   {
     return NULL;
   }
-  memcpy(&blk2[0], &size2, sizeof(size_t));
+  memcpy(&blk2[myalign-sizeof(size_t)], &size2, sizeof(size_t));
   memcpy(&blk2[myalign], &blk[myalign], sz < size2 ? sz : size2);
   jmfree(blk, realsz);
   return blk2+myalign;
@@ -270,6 +270,33 @@ void *reallocarray(void *ptr, size_t nmemb, size_t size)
     return NULL;
   }
   return realloc_impl(ptr, size*nmemb);
+}
+
+size_t malloc_usable_size(void *ptr)
+{
+  size_t myalign = ALIGN;
+  char *blk;
+  size_t sz;
+  if (myalign < sizeof(size_t))
+  {
+    myalign = sizeof(size_t);
+  }
+  if (!ptr) return 0;
+  blk = ptr;
+  blk -= sizeof(size_t);
+  memcpy(&sz, &blk[0], sizeof(size_t));
+  blk += sizeof(size_t);
+  if (sz == SIZE_MAX)
+  {
+    size_t alignment, alignment2;
+    blk -= 4*sizeof(size_t);
+    memcpy(&alignment2, &blk[0*sizeof(size_t)], sizeof(size_t));
+    memcpy(&alignment, &blk[1*sizeof(size_t)], sizeof(size_t));
+    memcpy(&sz, &blk[2*sizeof(size_t)], sizeof(size_t));
+    blk += 4*sizeof(size_t);
+    return sz;
+  }
+  return sz;
 }
 
 int posix_memalign(void **membptr, size_t alignment, size_t size)
