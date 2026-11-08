@@ -1,0 +1,25 @@
+@subfile
+@strict
+
+@phonyrule: 'all': 'jmallocdropin.o' 'libjmallocdropin.a' 'libjmallocdropin.so' 'libjmallocdropin.so.1'
+
+$CC ?= "cc"
+$CFLAGS ?= ["-O1"]
+$LDFLAGS ?= []
+$LDFLAGS_DYN = []
+#$CFLAGS += ["-fPIC", "-O3"]
+$CFLAGS += ["-fPIC"]
+
+'jmallocdropin.o': 'jmallocdropin.c'
+@	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
+
+'libjmallocdropin.a': 'jmallocdropin.o'
+@	["rm", "-f", $@]
+@	["ar", "rvs", $@, @$^]
+
+'libjmallocdropin.so.1': 'libjmallocdropin.a'
+@	[$(CC), "-shared", "-fPIC", "-Wl,-soname,".$@, "-o", $@, "-Wl,--whole-archive", @@suffilter($^, ".a"), "-Wl,--no-whole-archive", @$(LDFLAGS_DYN), "-ljmalloc", "-ldl", "-lc"]
+
+'libjmallocdropin.so': 'libjmallocdropin.so.1'
+@	["rm", "-f", $@]
+@	["ln", "-s", $<, $@]

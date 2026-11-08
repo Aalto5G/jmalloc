@@ -10,6 +10,7 @@
 $CC ?= "cc"
 $CFLAGS ?= ["-O3"]
 $LDFLAGS ?= []
+$CFLAGS += ["-O1"]
 
 @if($WITH_PYTHON)
 

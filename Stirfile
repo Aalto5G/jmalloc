@@ -30,7 +30,7 @@ $CC ?= "cc"
 $CFLAGS ?= ["-O3"]
 $LDFLAGS ?= []
 
-@phonyrule: 'all': 'jmalloc2' 'jmalloc' 'lmalloc' 'jmalloc2complex' 'lmalloccomplex' 'realapp/all' 'lib/all'
+@phonyrule: 'all': 'jmalloc2' 'jmalloc' 'lmalloc' 'jmalloc2complex' 'lmalloccomplex' 'realapp/all' 'lib/all' 'libdropin/all'
 
 'jmalloc2': 'jmalloc2.c'
 @	[$CC, @$CFLAGS, @$LDFLAGS, "-o", $@, @$^]
@@ -49,3 +49,4 @@ $LDFLAGS ?= []
 
 @dirinclude 'realapp'
 @dirinclude 'lib'
+@dirinclude 'libdropin'
