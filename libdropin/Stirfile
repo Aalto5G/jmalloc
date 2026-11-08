@@ -18,7 +18,7 @@ $CFLAGS += ["-fPIC"]
 @	["ar", "rvs", $@, @$^]
 
 'libjmallocdropin.so.1': 'libjmallocdropin.a'
-@	[$(CC), "-shared", "-fPIC", "-Wl,-soname,".$@, "-o", $@, "-Wl,--whole-archive", @@suffilter($^, ".a"), "-Wl,--no-whole-archive", @$(LDFLAGS_DYN), "-ljmalloc", "-ldl", "-lc"]
+@	[$(CC), "-shared", "-fPIC", "-Wl,-soname,".$@, "-o", $@, "-Wl,--whole-archive", @@suffilter($^, ".a"), "-Wl,--no-whole-archive", @$(LDFLAGS_DYN), "-L../lib", "-ljmalloc", "-ldl", "-lc"]
 
 'libjmallocdropin.so': 'libjmallocdropin.so.1'
 @	["rm", "-f", $@]
