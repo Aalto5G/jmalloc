@@ -92,7 +92,7 @@ static inline size_t get_max_align_compatibility(void)
 #endif
 
 
-void *malloc(size_t sz)
+static inline void *malloc_impl(size_t sz)
 {
   size_t realsz;
   char *blk;
@@ -119,7 +119,11 @@ void *malloc(size_t sz)
   //printf("malloc ret %p sz %zu\n", blk+myalign, sz);
   return blk;
 }
-void free(void *ptr)
+void *malloc(size_t sz)
+{
+  return malloc_impl(sz);
+}
+static inline void free_impl(void *ptr)
 {
   size_t sz;
   size_t realsz;
@@ -160,14 +164,22 @@ void free(void *ptr)
   realsz = sz + myalign;
   jmfree(blk, realsz);
 }
+void free(void *ptr)
+{
+  free_impl(ptr);
+}
 void *calloc(size_t nmemb, size_t size)
 {
   void *res;
-  if (SIZE_MAX/size > nmemb)
+  if (size == 0 || nmemb == 0)
+  {
+    return malloc_impl(0);
+  }
+  if (SIZE_MAX/size < nmemb)
   {
     return NULL;
   }
-  res = malloc(size*nmemb);
+  res = malloc_impl(size*nmemb);
   if (!res)
   {
     return NULL;
@@ -175,7 +187,7 @@ void *calloc(size_t nmemb, size_t size)
   memset(res, 0, size*nmemb);
   return res;
 }
-void *realloc(void *ptr, size_t size2)
+static inline void *realloc_impl(void *ptr, size_t size2)
 {
   size_t sz;
   size_t realsz;
@@ -193,11 +205,11 @@ void *realloc(void *ptr, size_t size2)
   }
   if (!ptr)
   {
-    return malloc(size2);
+    return malloc_impl(size2);
   }
   if (size2 == 0)
   {
-    free(ptr);
+    free_impl(ptr);
     return NULL;
   }
   blk = ptr;
@@ -243,13 +255,21 @@ void *realloc(void *ptr, size_t size2)
   jmfree(blk, realsz);
   return blk2+myalign;
 }
+void *realloc(void *ptr, size_t size2)
+{
+  return realloc_impl(ptr, size2);
+}
 void *reallocarray(void *ptr, size_t nmemb, size_t size)
 {
-  if (SIZE_MAX/size > nmemb)
+  if (size == 0 || nmemb == 0)
+  {
+    return realloc_impl(ptr, 0);
+  }
+  if (SIZE_MAX/size < nmemb)
   {
     return NULL;
   }
-  return realloc(ptr, size*nmemb);
+  return realloc_impl(ptr, size*nmemb);
 }
 
 int posix_memalign(void **membptr, size_t alignment, size_t size)
