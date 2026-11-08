@@ -8,7 +8,7 @@ $CFLAGS ?= ["-O1"]
 $LDFLAGS ?= []
 $LDFLAGS_DYN = []
 #$CFLAGS += ["-fPIC", "-O3"]
-$CFLAGS += ["-fPIC"]
+$CFLAGS += ["-fPIC", "-I../lib"]
 
 'jmallocdropin.o': 'jmallocdropin.c'
 @	[$CC, @$CFLAGS, "-c", "-o", $@, $<]
